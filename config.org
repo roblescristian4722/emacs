@@ -242,6 +242,7 @@ You can use the bindings CTRL plus =/- for zooming in/out.  You can also use CTR
 
   ; Evil mode movement
   (general-mmap 
+    :keymaps 'override
     "j" 'evil-backward-char
     "k" 'evil-next-line
     "l" 'evil-previous-line
@@ -249,6 +250,8 @@ You can use the bindings CTRL plus =/- for zooming in/out.  You can also use CTR
 
   ; Ctrl keybindings
   (general-define-key
+    :keymaps 'override
+    :states '(normal insert visual emacs)
     "C-s" 'basic-save-buffer
     "C-c" 'cua-copy-region
     "C-x" 'cua-cut-region
