@@ -5,3 +5,7 @@ projectile*
 recentf
 auto-save-list
 \#*
+\.cache
+custom_evil_collection
+history
+transient

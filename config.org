@@ -8,9 +8,9 @@
 - [[#important-programs-to-load-first][IMPORTANT PROGRAMS TO LOAD FIRST]]
   - [[#adding-the-scripts-directory-to-path][Adding the scripts directory to path]]
   - [[#sourcing-the-scripts][Sourcing the scripts]]
+  - [[#use-package-quick-fix][USE-PACKAGE QUICK FIX]]
 - [[#all-the-icons][ALL THE ICONS]]
 - [[#backup][BACKUP]]
-- [[#company][COMPANY]]
 - [[#dashboard][DASHBOARD]]
 - [[#diminish][DIMINISH]]
 - [[#dired][DIRED]]
@@ -21,8 +21,8 @@
 - [[#graphical-user-interface-tweaks][GRAPHICAL USER INTERFACE TWEAKS]]
   - [[#disable-menubar-toolbars-and-scrollbars][Disable Menubar, Toolbars and Scrollbars]]
   - [[#display-line-numbers-and-truncated-lines][Display Line Numbers and Truncated Lines]]
-- [[#ivy-counsel][IVY (COUNSEL)]]
 - [[#language-support][LANGUAGE SUPPORT]]
+- [[#minibuffer-escape][MINIBUFFER ESCAPE]]
 - [[#modeline][MODELINE]]
 - [[#neotree][NEOTREE]]
 - [[#org-mode][ORG MODE]]
@@ -33,6 +33,7 @@
   - [[#org-level-headers][Org Level Headers]]
   - [[#source-code-block-tag-expansion][Source Code Block Tag Expansion]]
 - [[#projectile][PROJECTILE]]
+- [[#rainbow-delimiters][RAINBOW DELIMITERS]]
 - [[#rainbow-mode][RAINBOW MODE]]
 - [[#shells-and-terminals][SHELLS AND TERMINALS]]
   - [[#eshell][Eshell]]
@@ -45,87 +46,85 @@
 - [[#fonts][FONTS]]
   - [[#setting-the-font-face][Setting the Font Face]]
   - [[#zooming-inout][Zooming In/Out]]
+- [[#vertico-completion-m-x-commands][VERTICO COMPLETION (M-X COMMANDS)]]
+- [[#git-programs][GIT PROGRAMS]]
+  - [[#git-time-machine][Git Time Machine]]
+  - [[#magit][Magit]]
+- [[#highlight-todo][HIGHLIGHT TODO]]
+- [[#ivy-counsel][IVY (COUNSEL)]]
+- [[#code-snippets][CODE SNIPPETS]]
+- [[#corfu][CORFU]]
+- [[#sane-defaults][SANE DEFAULTS]]
+- [[#tldr][TLDR]]
 
 * IMPORTANT PROGRAMS TO LOAD FIRST
 To keep this =config.org= a reasonable length, I have moved a lot of code to individual scripts that will be sourced by this config.  These scripts are found in "~/.config/emacs/scripts" and do not contain any code that most people are likely to need to edit.
 
 ** Adding the scripts directory to path
 #+begin_src emacs-lisp
-(add-to-list 'load-path "~/.emacs.d/scripts/")
+  (add-to-list 'load-path "~/.emacs.d/scripts/")
 #+end_src
 
 ** Sourcing the scripts
 #+begin_src emacs-lisp
-(require 'elpaca-setup)  ;; The Elpaca Package Manager
-(require 'buffer-move)   ;; Buffer-move for better window management
-(require 'app-launchers) ;; Use emacs as a run launcher like dmenu (experimental)
+  (require 'elpaca-setup)  ;; The Elpaca Package Manager
+  (require 'buffer-move)   ;; Buffer-move for better window management
+  (require 'app-launchers) ;; Use emacs as a run launcher like dmenu (experimental)
+#+end_src
+
+** USE-PACKAGE QUICK FIX
+#+begin_src emacs-lisp
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(eval-when-compile
+  (require 'use-package))
 #+end_src
 
 * ALL THE ICONS
 This is an icon set that can be used with dashboard, dired, ibuffer and other Emacs programs.
   
 #+begin_src emacs-lisp
-(use-package all-the-icons
-  :ensure t
-  :if (display-graphic-p))
+  (use-package all-the-icons
+    :ensure t
+    :if (display-graphic-p))
 
-(use-package all-the-icons-dired
-  :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
+  (use-package all-the-icons-dired
+    :hook (dired-mode . (lambda () (all-the-icons-dired-mode t))))
 #+end_src
 
 * BACKUP 
 By default, Emacs creates automatic backups of files in their original directories, such "file.el" and the backup "file.el~".  This leads to a lot of clutter, so let's tell Emacs to put all backups that it creates in the =TRASH= directory.
 
 #+begin_src emacs-lisp
-(setq backup-directory-alist '((".*" . "~/.Trash")))
+  (setq backup-directory-alist '((".*" . "~/.Trash")))
 
-#+end_src
-
-* COMPANY
-[[https://company-mode.github.io/][Company]] is a text completion framework for Emacs. The name stands for "complete anything".  Completion will start automatically after you type a few letters. Use M-n and M-p to select, <return> to complete or <tab> to complete the common part.
-
-#+begin_src emacs-lisp
-(use-package company
-  :defer 2
-  :diminish
-  :custom
-  (company-begin-commands '(self-insert-command))
-  (company-idle-delay .1)
-  (company-minimum-prefix-length 2)
-  (company-show-numbers t)
-  (company-tooltip-align-annotations 't)
-  (global-company-mode t))
-
-(use-package company-box
-  :after company
-  :diminish
-  :hook (company-mode . company-box-mode))
 #+end_src
 
 * DASHBOARD
 Emacs Dashboard is an extensible startup screen showing you recent files, bookmarks, agenda items and an Emacs banner.
 
 #+begin_src emacs-lisp
-(use-package dashboard
-  :ensure t 
-  :init
-  (setq initial-buffer-choice 'dashboard-open)
-  (setq dashboard-set-heading-icons t)
-  (setq dashboard-set-file-icons t)
-  (setq dashboard-banner-logo-title "Emacs Is More Than A Text Editor!")
-  ;;(setq dashboard-startup-banner 'logo) ;; use standard emacs logo as banner
-  (setq dashboard-startup-banner "/home/dt/.config/emacs/images/dtmacs-logo.png")  ;; use custom image as banner
-  (setq dashboard-center-content nil) ;; set to 't' for centered content
-  (setq dashboard-items '((recents . 5)
-                          (agenda . 5 )
-                          (bookmarks . 3)
-                          (projects . 3)
-                          (registers . 3)))
-  :custom 
-  (dashboard-modify-heading-icons '((recents . "file-text")
+  (use-package dashboard
+    :ensure t 
+    :init
+    (setq initial-buffer-choice 'dashboard-open)
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-set-file-icons t)
+    (setq dashboard-banner-logo-title "Emacs Is More Than A Text Editor!")
+    ;;(setq dashboard-startup-banner 'logo) ;; use standard emacs logo as banner
+    (setq dashboard-center-content nil) ;; set to 't' for centered content
+    (setq dashboard-items '((recents . 5)
+			    (agenda . 5 )
+			    (bookmarks . 3)
+			    (projects . 3)
+			    (registers . 3)))
+    :custom 
+    (dashboard-modify-heading-icons '((recents . "file-text")
 				      (bookmarks . "book")))
-  :config
-  (dashboard-setup-startup-hook))
+    :config
+    (dashboard-setup-startup-hook))
 
 #+end_src
 
@@ -133,7 +132,7 @@ Emacs Dashboard is an extensible startup screen showing you recent files, bookma
 This package implements hiding or abbreviation of the modeline displays (lighters) of minor-modes.  With this package installed, you can add ':diminish' to any use-package block to hide that particular mode in the modeline.
 
 #+begin_src emacs-lisp
-(use-package diminish)
+  (use-package diminish)
 
 #+end_src
 
@@ -151,11 +150,11 @@ This package implements hiding or abbreviation of the modeline displays (lighter
     :after dired
     :hook (evil-normalize-keymaps . peep-dired-hook)
     :config
-      (evil-define-key 'normal dired-mode-map (kbd "j") 'dired-up-directory)
-      (evil-define-key 'normal dired-mode-map (kbd "ñ") 'dired-open-file) ; use dired-find-file instead if not using dired-open package
-      (evil-define-key 'normal peep-dired-mode-map (kbd "k") 'peep-dired-next-file)
-      (evil-define-key 'normal peep-dired-mode-map (kbd "l") 'peep-dired-prev-file)
-  )
+    (evil-define-key 'normal dired-mode-map (kbd "j") 'dired-up-directory)
+    (evil-define-key 'normal dired-mode-map (kbd "ñ") 'dired-open-file) ; use dired-find-file instead if not using dired-open package
+    (evil-define-key 'normal peep-dired-mode-map (kbd "k") 'peep-dired-next-file)
+    (evil-define-key 'normal peep-dired-mode-map (kbd "l") 'peep-dired-prev-file)
+    )
 
 #+end_src
 
@@ -163,14 +162,14 @@ This package implements hiding or abbreviation of the modeline displays (lighter
 [[https://github.com/emacs-evil/evil][Evil]] is an extensible vi/vim layer for Emacs.  Because...let's face it.  The Vim keybindings are just plain better.
 
 #+begin_src emacs-lisp
-;; Expands to: (elpaca evil (use-package evil :demand t))
-(use-package evil
+  ;; Expands to: (elpaca evil (use-package evil :demand t))
+  (use-package evil
     :init      ;; tweak evil's configuration before loading it
     (setq evil-want-integration t  ;; This is optional since it's already set to t by default.
-          evil-want-keybinding nil
-          evil-vsplit-window-right t
-          evil-split-window-below t
-          evil-undo-system 'undo-redo)  ;; Adds vim-like C-r redo functionality
+	  evil-want-keybinding nil
+	  evil-vsplit-window-right t
+	  evil-split-window-below t
+	  evil-undo-system 'undo-redo)  ;; Adds vim-like C-r redo functionality
     (evil-mode))
   (use-package evil-collection
     :after evil
@@ -253,7 +252,6 @@ Install =luacheck= from your Linux distro's repositories for flycheck to work co
     "d" '(:ignore t :wk "Dired")
     "d d" '(dired :wk "Open dired")
     "d j" '(dired-jump :wk "Dired jump to current")
-    "d n" '(neotree-dir :wk "Open directory in neotree")
     "d p" '(peep-dired :wk "Peep-dired"))
 
   (dt/leader-keys
@@ -319,6 +317,10 @@ Install =luacheck= from your Linux distro's repositories for flycheck to work co
     "m d t" '(org-time-stamp :wk "Org time stamp"))
 
   (dt/leader-keys
+    "o t" '(neotree-toggle :wk "Toggle neotree file viewer")
+    "o o" '(neotree-dir :wk "Open directory in neotree"))
+
+  (dt/leader-keys
     "p" '(projectile-command-map :wk "Projectile"))
 
   (dt/leader-keys
@@ -326,7 +328,6 @@ Install =luacheck= from your Linux distro's repositories for flycheck to work co
     "t e" '(eshell-toggle :wk "Toggle eshell")
     "t f" '(flycheck-mode :wk "Toggle flycheck")
     "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
-    "t n" '(neotree-toggle :wk "Toggle neotree file viewer")
     "t r" '(rainbow-mode :wk "Toggle rainbow mode")
     "t t" '(visual-line-mode :wk "Toggle truncated lines")
     "t v" '(vterm-toggle :wk "Toggle vterm"))
@@ -384,55 +385,37 @@ Let's make GNU Emacs look a little better.
 #+RESULTS:
 : t
 
-* IVY (COUNSEL)
-+ Ivy, a generic completion mechanism for Emacs.
-+ Counsel, a collection of Ivy-enhanced versions of common Emacs commands.
-+ Ivy-rich allows us to add descriptions alongside the commands in M-x.
-
-#+begin_src emacs-lisp
-(use-package counsel
-  :after ivy
-  :diminish
-  :config (counsel-mode))
-
-(use-package ivy
-  :bind
-  ;; ivy-resume resumes the last Ivy-based completion.
-  (("C-r" . ivy-resume)
-   ("C-b" . ivy-switch-buffer-other-window))
-  :diminish
-  :custom
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-count-format "(%d/%d) ")
-  (setq enable-recursive-minibuffers t)
-  :config
-  (ivy-mode))
-
-(use-package all-the-icons-ivy-rich
-  :ensure t
-  :init (all-the-icons-ivy-rich-mode 1))
-
-(use-package ivy-rich
-  :after ivy
-  :ensure t
-  :init (ivy-rich-mode 1) ;; this gets us descriptions in M-x.
-  :custom
-  (ivy-virtual-abbreviate 'full
-   ivy-rich-switch-buffer-align-virtual-buffer t
-   ivy-rich-path-style 'abbrev)
-  :config
-  (ivy-set-display-transformer 'ivy-switch-buffer
-                               'ivy-rich-switch-buffer-transformer))
-
-#+end_src
-
 * LANGUAGE SUPPORT
 Emacs has built-in programming language modes for Lisp, Scheme, DSSSL, Ada, ASM, AWK, C, C++, Fortran, Icon, IDL (CORBA), IDLWAVE, Java, Javascript, M4, Makefiles, Metafont, Modula2, Object Pascal, Objective-C, Octave, Pascal, Perl, Pike, PostScript, Prolog, Python, Ruby, Simula, SQL, Tcl, Verilog, and VHDL.  Other languages will require you to install additional modes.
 
 #+begin_src emacs-lisp
+(use-package lsp-mode)
+(add-hook 'prog-mode-hook #'lsp)
+
+;; optionally
+(use-package lsp-ui :commands lsp-ui-mode)
+;; if you are helm user
+(use-package helm-lsp :commands helm-lsp-workspace-symbol)
+;; if you are ivy user
+(use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+(use-package lsp-treemacs :commands lsp-treemacs-errors-list)
+
+;; optionally if you want to use debugger
+(use-package dap-mode)
+;; (use-package dap-LANGUAGE) to load the dap adapter for your language
+
 (use-package haskell-mode)
 (use-package lua-mode)
 
+; Java
+(use-package lsp-java)
+#+end_src
+
+* MINIBUFFER ESCAPE
+By default, Emacs requires you to hit ESC three times to escape quit the minibuffer.  
+
+#+begin_src emacs-lisp
+(global-set-key [escape] 'keyboard-escape-quit)
 #+end_src
 
 * MODELINE
@@ -455,8 +438,8 @@ Neotree is a file tree viewer.  When you open neotree, it jumps to the current f
 
 | COMMAND        | DESCRIPTION               | KEYBINDING |
 |----------------+---------------------------+------------|
-| neotree-toggle | /Toggle neotree/            | SPC t n    |
-| neotree- dir   | /Open directory in neotree/ | SPC d n    |
+| neotree-toggle | /Toggle neotree/            | SPC o t |
+| neotree- dir   | /Open directory in neotree/ | SPC o o |
 
 #+BEGIN_SRC emacs-lisp
 (use-package neotree
@@ -550,6 +533,16 @@ Org-tempo is not a separate package but a module within org that can be enabled.
 (use-package projectile
   :config
   (projectile-mode 1))
+#+end_src
+
+* RAINBOW DELIMITERS
+Adding rainbow coloring to parentheses.
+
+#+begin_src emacs-lisp
+(use-package rainbow-delimiters
+  :hook ((emacs-lisp-mode . rainbow-delimiters-mode)
+         (clojure-mode . rainbow-delimiters-mode)))
+
 #+end_src
 
 * RAINBOW MODE
@@ -705,7 +698,7 @@ Defining the various fonts that Emacs will use.
 ;; This sets the default font on all graphical frames created after restarting Emacs.
 ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
 ;; are not right unless I also add this method of setting the default font.
-(add-to-list 'default-frame-alist '(font . "JetBrains Mono-11"))
+;(add-to-list 'default-frame-alist '(font . "JetBrains Mono-11"))
 
 ;; Uncomment the following line if line spacing needs adjusting.
 (setq-default line-spacing 0.12)
@@ -720,4 +713,175 @@ You can use the bindings CTRL plus =/- for zooming in/out.  You can also use CTR
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "<C-wheel-up>") 'text-scale-increase)
 (global-set-key (kbd "<C-wheel-down>") 'text-scale-decrease)
+#+end_src
+
+* VERTICO COMPLETION (M-X COMMANDS)
+#+begin_src emacs-lisp
+;; Enable vertico
+(use-package vertico
+  :custom
+  ;; (vertico-scroll-margin 0) ;; Different scroll margin
+  ;; (vertico-count 20) ;; Show more candidates
+  ;; (vertico-resize t) ;; Grow and shrink the Vertico minibuffer
+  (vertico-cycle t) ;; Enable cycling for `vertico-next/previous'
+  :init
+  (vertico-mode))
+
+;; Persist history over Emacs restarts. Vertico sorts by history position.
+(use-package savehist
+  :init
+  (savehist-mode))
+
+#+end_src
+
+* GIT PROGRAMS
+** Git Time Machine
+[[https://github.com/emacsmirror/git-timemachine][git-timemachine]] is a program that allows you to move backwards and forwards through a file's commits.  'SPC g t' will open the time machine on a file if it is in a git repo.  Then, while in normal mode, you can use 'CTRL-j' and 'CTRL-k' to move backwards and forwards through the commits.
+
+
+#+begin_src emacs-lisp
+(use-package git-timemachine
+  :after git-timemachine
+  :hook (evil-normalize-keymaps . git-timemachine-hook)
+  :config
+    (evil-define-key 'normal git-timemachine-mode-map (kbd "C-j") 'git-timemachine-show-previous-revision)
+    (evil-define-key 'normal git-timemachine-mode-map (kbd "C-k") 'git-timemachine-show-next-revision)
+)
+#+end_src
+
+** Magit
+[[https://magit.vc/manual/][Magit]] is a full-featured git client for Emacs.
+
+#+begin_src emacs-lisp
+(use-package magit)
+
+#+end_src
+
+* HIGHLIGHT TODO
+Adding highlights to TODO and related words.
+
+#+begin_src emacs-lisp
+(use-package hl-todo
+  :hook ((org-mode . hl-todo-mode)
+         (prog-mode . hl-todo-mode))
+  :config
+  (setq hl-todo-highlight-punctuation ":"
+        hl-todo-keyword-faces
+        `(("TODO"       warning bold)
+          ("FIXME"      error bold)
+          ("HACK"       font-lock-constant-face bold)
+          ("REVIEW"     font-lock-keyword-face bold)
+          ("NOTE"       success bold)
+          ("DEPRECATED" font-lock-doc-face bold))))
+
+#+end_src
+
+* IVY (COUNSEL)
++ Ivy, a generic completion mechanism for Emacs.
++ Counsel, a collection of Ivy-enhanced versions of common Emacs commands.
++ Ivy-rich allows us to add descriptions alongside the commands in M-x.
+
+#+begin_src emacs-lisp
+(use-package counsel
+  :after ivy
+  :diminish
+  :config 
+    (counsel-mode)
+    (setq ivy-initial-inputs-alist nil)) ;; removes starting ^ regex in M-x
+
+(use-package ivy
+  :bind
+  ;; ivy-resume resumes the last Ivy-based completion.
+  (("C-c C-r" . ivy-resume)
+   ("C-x B" . ivy-switch-buffer-other-window))
+  :diminish
+  :custom
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-count-format "(%d/%d) ")
+  (setq enable-recursive-minibuffers t)
+  :config
+  (ivy-mode))
+
+(use-package all-the-icons-ivy-rich
+  :ensure t
+  :init (all-the-icons-ivy-rich-mode 1))
+
+(use-package ivy-rich
+  :after ivy
+  :ensure t
+  :init (ivy-rich-mode 1) ;; this gets us descriptions in M-x.
+  :custom
+  (ivy-virtual-abbreviate 'full
+   ivy-rich-switch-buffer-align-virtual-buffer t
+   ivy-rich-path-style 'abbrev)
+  :config
+  (ivy-set-display-transformer 'ivy-switch-buffer
+                               'ivy-rich-switch-buffer-transformer))
+
+#+end_src
+
+* TODO CODE SNIPPETS
+
+* CORFU
+
+#+begin_src emacs-lisp
+(use-package corfu
+  ;; Optional customizations
+  :custom
+  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+  ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
+  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+
+  ;; Enable Corfu only for certain modes. See also `global-corfu-modes'.
+  ;; :hook ((prog-mode . corfu-mode)
+  ;;        (shell-mode . corfu-mode)
+  ;;        (eshell-mode . corfu-mode))
+
+  ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
+  ;; be used globally (M-/).  See also the customization variable
+  ;; `global-corfu-modes' to exclude certain modes.
+  :init
+  (global-corfu-mode))
+  ;; Enable auto completion and configure quitting
+  (setq corfu-auto t
+      corfu-quit-no-match 'separator) ;; or t
+
+(add-hook 'corfu-mode-hook
+	  (lambda ()
+	    (setq-local completion-styles '(orderless-literal-only basic)
+			completion-category-overrides nil
+			completion-category-defaults nil)))
+#+end_src
+
+* SANE DEFAULTS
+The following settings are simple modes that are enabled (or disabled) so that Emacs functions more like you would expect a proper editor/IDE to function.
+
+#+begin_src emacs-lisp
+(delete-selection-mode 1)    ;; You can select text and delete it by typing.
+(electric-indent-mode -1)    ;; Turn off the weird indenting that Emacs does by default.
+(electric-pair-mode 1)       ;; Turns on automatic parens pairing
+;; The following prevents <> from auto-pairing when electric-pair-mode is on.
+;; Otherwise, org-tempo is broken when you try to <s TAB...
+(add-hook 'org-mode-hook (lambda ()
+           (setq-local electric-pair-inhibit-predicate
+                   `(lambda (c)
+                  (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
+(global-auto-revert-mode t)  ;; Automatically show changes if the file has changed
+(global-display-line-numbers-mode 1) ;; Display line numbers
+(global-visual-line-mode t)  ;; Enable truncated lines
+(menu-bar-mode -1)           ;; Disable the menu bar 
+(scroll-bar-mode -1)         ;; Disable the scroll bar
+(tool-bar-mode -1)           ;; Disable the tool bar
+(setq org-edit-src-content-indentation 0) ;; Set src block automatic indent to 0 instead of 2.
+
+#+end_src
+
+* TLDR
+
+#+begin_src emacs-lisp
+(use-package tldr)
+
 #+end_src
