@@ -240,11 +240,21 @@ You can use the bindings CTRL plus =/- for zooming in/out.  You can also use CTR
     :prefix "SPC" ;; set leader
     :global-prefix "M-SPC") ;; access leader in insert mode
 
+  ; Evil mode movement
   (general-mmap 
     "j" 'evil-backward-char
     "k" 'evil-next-line
     "l" 'evil-previous-line
     "ñ" 'evil-forward-char)
+
+  ; Ctrl keybindings
+  (general-define-key
+    "C-s" 'basic-save-buffer
+    "C-c" 'cua-copy-region
+    "C-x" 'cua-cut-region
+    "C-v" 'cua-paste
+    "C-z" 'undo
+    "C-y" 'undo-redo)
 
   (dt/leader-keys
     "SPC" '(counsel-M-x :wk "Counsel M-x")
@@ -420,8 +430,8 @@ Let's make GNU Emacs look a little better.
 (use-package ivy
   :bind
   ;; ivy-resume resumes the last Ivy-based completion.
-  (("C-c C-r" . ivy-resume)
-   ("C-x B" . ivy-switch-buffer-other-window))
+  (("C-r" . ivy-resume)
+   ("C-b" . ivy-switch-buffer-other-window))
   :diminish
   :custom
   (setq ivy-use-virtual-buffers t)

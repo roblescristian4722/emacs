@@ -1,3 +1,5 @@
 config.el
 eln-cache
 elpaca
+projectile*
+recentf
